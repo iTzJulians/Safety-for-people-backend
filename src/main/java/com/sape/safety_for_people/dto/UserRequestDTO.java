@@ -6,4 +6,6 @@ public record UserRequestDTO(
         String password,
         String phoneNumber,
         Integer roleId
-);
+){
+
+}

@@ -7,4 +7,6 @@ public record UserResponseDTO(
         String phoneNumber,
         Boolean active,
         Integer roleId
-);
+){
+
+}

@@ -1,6 +1,6 @@
-package com.sape.safety_for_people.repositories;
+package com.sape.safety_for_people.repository;
 
-import com.sape.safety_for_people.models.User;
+import com.sape.safety_for_people.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

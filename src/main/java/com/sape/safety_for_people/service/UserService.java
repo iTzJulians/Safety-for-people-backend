@@ -1,9 +1,9 @@
-package com.sape.safety_for_people.services;
+package com.sape.safety_for_people.service;
 
 import com.sape.safety_for_people.dto.UserRequestDTO;
 import com.sape.safety_for_people.dto.UserResponseDTO;
-import com.sape.safety_for_people.models.User;
-import com.sape.safety_for_people.repositories.UserRepository;
+import com.sape.safety_for_people.model.User;
+import com.sape.safety_for_people.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

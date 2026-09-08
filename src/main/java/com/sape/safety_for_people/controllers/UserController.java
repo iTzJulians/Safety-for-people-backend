@@ -1,7 +1,8 @@
 package com.sape.safety_for_people.controllers;
 
-import com.sape.safety_for_people.models.User;
-import com.sape.safety_for_people.services.UserService;
+import com.sape.safety_for_people.dto.UserResponseDTO;
+import com.sape.safety_for_people.model.User;
+import com.sape.safety_for_people.service.UserService;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +26,14 @@ public class UserController {
     }
 
     @GetMapping
-    public List<User> getAllUsers() {
+    public List<UserResponseDTO> getAllUsers() {
         return userService.getAllUsers();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
-        Optional<User> user = userService.getUserById(id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    public Optional<ResponseEntity<Object>> getUserById(@PathVariable Integer id) {
+        Optional<UserResponseDTO> user = userService.getUserById(id);
+        return user.map(userService -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
