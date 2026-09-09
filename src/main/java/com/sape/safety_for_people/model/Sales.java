@@ -1,15 +1,19 @@
 package com.sape.safety_for_people.model;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "sales")
@@ -17,7 +21,7 @@ public class Sales {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @Column(name = "created_on", updatable = false)
     private LocalDateTime createdOn;
@@ -33,6 +37,9 @@ public class Sales {
     @Column(nullable = false)
     private Integer status;
 
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SaleDetail> details = new ArrayList<>();
+
     @PrePersist
     void applyDefaults() {
         if (createdOn == null) {
@@ -43,7 +50,7 @@ public class Sales {
         }
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
@@ -85,5 +92,13 @@ public class Sales {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public List<SaleDetail> getDetails() {
+        return details;
+    }
+
+    public void setDetails(List<SaleDetail> details) {
+        this.details = details;
     }
 }

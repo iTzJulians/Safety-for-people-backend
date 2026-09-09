@@ -32,7 +32,7 @@ public class SaleController {
     }
 
     @GetMapping("/{id}")
-    public SaleResponseDTO findById(@PathVariable Integer id) {
+    public SaleResponseDTO findById(@PathVariable Long id) {
         return saleService.findById(id);
     }
 
@@ -43,13 +43,13 @@ public class SaleController {
     }
 
     @PutMapping("/{id}")
-    public SaleResponseDTO update(@PathVariable Integer id, @RequestBody SaleRequestDTO request) {
+    public SaleResponseDTO update(@PathVariable Long id, @RequestBody SaleRequestDTO request) {
         return saleService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Integer id) {
+    public void delete(@PathVariable Long id) {
         saleService.delete(id);
     }
 }

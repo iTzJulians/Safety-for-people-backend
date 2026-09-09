@@ -17,6 +17,4 @@ public class ProductResponseDTO {
     private Boolean active;
     private LocalDateTime createdOn;
     private String characteristics;
-    private Long categoryId;
-    private Long groupId;
 }

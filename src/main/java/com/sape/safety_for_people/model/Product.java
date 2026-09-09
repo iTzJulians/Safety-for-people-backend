@@ -1,4 +1,4 @@
-package com.sape.safety_for_people.entity;
+package com.sape.safety_for_people.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -40,12 +40,4 @@ public class Product {
     private LocalDateTime createdOn;
 
     private String characteristics; // en el ERD es tipo "json"
-
-    @ManyToOne
-    @JoinColumn(name = "category")
-    private Category category;
-
-    @ManyToOne
-    @JoinColumn(name = "group")
-    private Group group;
 }
