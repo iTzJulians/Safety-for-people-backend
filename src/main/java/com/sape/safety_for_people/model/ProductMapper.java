@@ -1,8 +1,8 @@
-package com.sape.safety_for_people.mapper;
+package com.sape.safety_for_people.model;
 
 import com.sape.safety_for_people.dto.ProductRequestDTO;
 import com.sape.safety_for_people.dto.ProductResponseDTO;
-import com.sape.safety_for_people.entity.Product;
+
 import java.time.LocalDateTime;
 
 public class ProductMapper {

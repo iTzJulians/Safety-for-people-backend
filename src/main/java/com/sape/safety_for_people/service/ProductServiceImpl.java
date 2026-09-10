@@ -1,15 +1,14 @@
-package com.sape.safety_for_people.service.impl;
+package com.sape.safety_for_people.service;
 
 import com.sape.safety_for_people.dto.ProductRequestDTO;
 import com.sape.safety_for_people.dto.ProductResponseDTO;
-import com.sape.safety_for_people.entity.Product;
-import com.sape.safety_for_people.entity.Category;
-import com.sape.safety_for_people.entity.Group;
-import com.sape.safety_for_people.mapper.ProductMapper;
+import com.sape.safety_for_people.model.Product;
+import com.sape.safety_for_people.model.Category;
+import com.sape.safety_for_people.model.Group;
+import com.sape.safety_for_people.model.ProductMapper;
 import com.sape.safety_for_people.repository.ProductRepository;
 import com.sape.safety_for_people.repository.CategoryRepository;
 import com.sape.safety_for_people.repository.GroupRepository;
-import com.sape.safety_for_people.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

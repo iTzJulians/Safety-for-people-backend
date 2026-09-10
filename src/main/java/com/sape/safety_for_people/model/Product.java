@@ -1,4 +1,4 @@
-package com.sape.safety_for_people.entity;
+package com.sape.safety_for_people.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
