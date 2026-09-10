@@ -9,7 +9,6 @@ import com.sape.safety_for_people.model.ProductMapper;
 import com.sape.safety_for_people.repository.ProductRepository;
 import com.sape.safety_for_people.repository.CategoryRepository;
 import com.sape.safety_for_people.repository.GroupRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,14 +17,17 @@ import java.util.stream.Collectors;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
+    private final CategoryRepository categoryRepository;
+    private final GroupRepository groupRepository;
 
-    @Autowired
-    private CategoryRepository categoryRepository;
-
-    @Autowired
-    private GroupRepository groupRepository;
+    public ProductServiceImpl(ProductRepository productRepository,
+                              CategoryRepository categoryRepository,
+                              GroupRepository groupRepository) {
+        this.productRepository = productRepository;
+        this.categoryRepository = categoryRepository;
+        this.groupRepository = groupRepository;
+    }
 
     @Override
     public List<ProductResponseDTO> getAll() {
@@ -38,27 +40,14 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO getById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
         return ProductMapper.toDTO(product);
     }
 
     @Override
     public ProductResponseDTO create(ProductRequestDTO dto) {
         Product product = ProductMapper.toEntity(dto);
-
-        // Buscar y asignar Categoría si el DTO trae el ID
-        if (dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-            product.setCategory(category);
-        }
-
-        // Buscar y asignar Grupo si el DTO trae el ID
-        if (dto.getGroupId() != null) {
-            Group group = groupRepository.findById(dto.getGroupId())
-                    .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
-            product.setGroup(group);
-        }
+        assignCategoryAndGroup(product, dto.getCategoryId(), dto.getGroupId());
 
         Product saved = productRepository.save(product);
         return ProductMapper.toDTO(saved);
@@ -67,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO update(Long id, ProductRequestDTO dto) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
 
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
@@ -79,25 +68,30 @@ public class ProductServiceImpl implements ProductService {
         product.setActive(dto.getActive());
         product.setCharacteristics(dto.getCharacteristics());
 
-        // Actualizar Categoría si el DTO trae el ID
-        if (dto.getCategoryId() != null) {
-            Category category = categoryRepository.findById(dto.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-            product.setCategory(category);
-        }
-
-        // Actualizar Grupo si el DTO trae el ID
-        if (dto.getGroupId() != null) {
-            Group group = groupRepository.findById(dto.getGroupId())
-                    .orElseThrow(() -> new RuntimeException("Grupo no encontrado"));
-            product.setGroup(group);
-        }
+        assignCategoryAndGroup(product, dto.getCategoryId(), dto.getGroupId());
 
         return ProductMapper.toDTO(productRepository.save(product));
     }
 
     @Override
     public void delete(Long id) {
+        if (!productRepository.existsById(id)) {
+            throw new RuntimeException("Producto no encontrado para eliminar con ID: " + id);
+        }
         productRepository.deleteById(id);
+    }
+
+    private void assignCategoryAndGroup(Product product, Long categoryId, Long groupId) {
+        if (categoryId != null) {
+            Category category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + categoryId));
+            product.setCategory(category);
+        }
+
+        if (groupId != null) {
+            Group group = groupRepository.findById(groupId)
+                    .orElseThrow(() -> new RuntimeException("Grupo no encontrado con ID: " + groupId));
+            product.setGroup(group);
+        }
     }
 }

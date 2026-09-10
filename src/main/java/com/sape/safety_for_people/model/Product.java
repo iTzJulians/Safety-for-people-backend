@@ -19,12 +19,15 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String name;
 
     private String description;
 
+    @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
+    @Column(nullable = false)
     private Integer stock;
 
     private Boolean favorite;
@@ -36,16 +39,30 @@ public class Product {
 
     private Boolean active;
 
-    @Column(name = "created_on")
+    @Column(name = "created_on", updatable = false)
     private LocalDateTime createdOn;
 
-    private String characteristics; // en el ERD es tipo "json"
+    @Column(columnDefinition = "json")
+    private String characteristics;
 
-    @ManyToOne
-    @JoinColumn(name = "category")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "group")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
     private Group group;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdOn == null) {
+            this.createdOn = LocalDateTime.now();
+        }
+        if (this.active == null) {
+            this.active = true;
+        }
+        if (this.favorite == null) {
+            this.favorite = false;
+        }
+    }
 }

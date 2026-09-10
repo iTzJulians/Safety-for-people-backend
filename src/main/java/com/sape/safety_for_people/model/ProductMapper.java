@@ -7,7 +7,14 @@ import java.time.LocalDateTime;
 
 public class ProductMapper {
 
+    private ProductMapper() {
+    }
+
     public static Product toEntity(ProductRequestDTO dto) {
+        if (dto == null) {
+            return null;
+        }
+
         Product product = new Product();
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
@@ -23,6 +30,10 @@ public class ProductMapper {
     }
 
     public static ProductResponseDTO toDTO(Product product) {
+        if (product == null) {
+            return null;
+        }
+
         ProductResponseDTO dto = new ProductResponseDTO();
         dto.setId(product.getId());
         dto.setName(product.getName());
@@ -35,8 +46,14 @@ public class ProductMapper {
         dto.setActive(product.getActive());
         dto.setCreatedOn(product.getCreatedOn());
         dto.setCharacteristics(product.getCharacteristics());
-        if (product.getCategory() != null) dto.setCategoryId(product.getCategory().getId());
-        if (product.getGroup() != null) dto.setGroupId(product.getGroup().getId());
+
+        if (product.getCategory() != null) {
+            dto.setCategoryId(product.getCategory().getId());
+        }
+        if (product.getGroup() != null) {
+            dto.setGroupId(product.getGroup().getId());
+        }
+
         return dto;
     }
 }
