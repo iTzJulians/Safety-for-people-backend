@@ -14,6 +14,4 @@ public class ProductRequestDTO {
     private String backgroundColor;
     private Boolean active;
     private String characteristics;
-    private Long categoryId;
-    private Long groupId;
 }

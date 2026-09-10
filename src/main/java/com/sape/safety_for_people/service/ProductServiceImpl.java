@@ -1,14 +1,12 @@
-package com.sape.safety_for_people.service;
+package com.sape.safety_for_people.service.impl;
 
 import com.sape.safety_for_people.dto.ProductRequestDTO;
 import com.sape.safety_for_people.dto.ProductResponseDTO;
 import com.sape.safety_for_people.model.Product;
-import com.sape.safety_for_people.model.Category;
-import com.sape.safety_for_people.model.Group;
-import com.sape.safety_for_people.model.ProductMapper;
+import com.sape.safety_for_people.mapper.ProductMapper;
 import com.sape.safety_for_people.repository.ProductRepository;
-import com.sape.safety_for_people.repository.CategoryRepository;
-import com.sape.safety_for_people.repository.GroupRepository;
+import com.sape.safety_for_people.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,17 +15,8 @@ import java.util.stream.Collectors;
 @Service
 public class ProductServiceImpl implements ProductService {
 
-    private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
-    private final GroupRepository groupRepository;
-
-    public ProductServiceImpl(ProductRepository productRepository,
-                              CategoryRepository categoryRepository,
-                              GroupRepository groupRepository) {
-        this.productRepository = productRepository;
-        this.categoryRepository = categoryRepository;
-        this.groupRepository = groupRepository;
-    }
+    @Autowired
+    private ProductRepository productRepository;
 
     @Override
     public List<ProductResponseDTO> getAll() {
@@ -40,14 +29,13 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO getById(Long id) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
         return ProductMapper.toDTO(product);
     }
 
     @Override
     public ProductResponseDTO create(ProductRequestDTO dto) {
         Product product = ProductMapper.toEntity(dto);
-        assignCategoryAndGroup(product, dto.getCategoryId(), dto.getGroupId());
 
         Product saved = productRepository.save(product);
         return ProductMapper.toDTO(saved);
@@ -56,7 +44,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ProductResponseDTO update(Long id, ProductRequestDTO dto) {
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado con ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
@@ -68,30 +56,11 @@ public class ProductServiceImpl implements ProductService {
         product.setActive(dto.getActive());
         product.setCharacteristics(dto.getCharacteristics());
 
-        assignCategoryAndGroup(product, dto.getCategoryId(), dto.getGroupId());
-
         return ProductMapper.toDTO(productRepository.save(product));
     }
 
     @Override
     public void delete(Long id) {
-        if (!productRepository.existsById(id)) {
-            throw new RuntimeException("Producto no encontrado para eliminar con ID: " + id);
-        }
         productRepository.deleteById(id);
-    }
-
-    private void assignCategoryAndGroup(Product product, Long categoryId, Long groupId) {
-        if (categoryId != null) {
-            Category category = categoryRepository.findById(categoryId)
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada con ID: " + categoryId));
-            product.setCategory(category);
-        }
-
-        if (groupId != null) {
-            Group group = groupRepository.findById(groupId)
-                    .orElseThrow(() -> new RuntimeException("Grupo no encontrado con ID: " + groupId));
-            product.setGroup(group);
-        }
     }
 }
