@@ -8,11 +8,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoryResponseDTO {
-
+public class StatusResponseDTO {
     private Long id;
     private String name;
-    private String description;
-    private Boolean active;
     private LocalDateTime createdOn;
+    private Boolean active;
 }

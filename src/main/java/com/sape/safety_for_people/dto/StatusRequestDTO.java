@@ -1,18 +1,17 @@
 package com.sape.safety_for_people.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CategoryResponseDTO {
+public class StatusRequestDTO {
 
-    private Long id;
+    @NotBlank(message = "El nombre del estado es obligatorio")
     private String name;
-    private String description;
+
     private Boolean active;
-    private LocalDateTime createdOn;
 }

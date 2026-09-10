@@ -1,12 +1,12 @@
 package com.sape.safety_for_people.dto;
 
+import java.time.LocalDateTime;
+
 public record UserResponseDTO(
-        Integer id,
+        Long id,
         String name,
         String email,
         String phoneNumber,
         Boolean active,
-        Integer roleId
-){
-
-}
+        Long roleId
+) {}
