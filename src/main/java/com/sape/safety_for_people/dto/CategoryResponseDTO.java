@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public class CategoryResponseDTO {
 
-    private Integer id;
+    private Long id;
     private String name;
     private String description;
     private Boolean active;

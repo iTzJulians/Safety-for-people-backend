@@ -3,18 +3,22 @@ package com.sape.safety_for_people.controller;
 import com.sape.safety_for_people.dto.ProductRequestDTO;
 import com.sape.safety_for_people.dto.ProductResponseDTO;
 import com.sape.safety_for_people.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/productos")
 public class ProductController {
 
-    @Autowired
-    private ProductService productService;
+    private final ProductService productService;
+
+    public ProductController(ProductService productService) {
+        this.productService = productService;
+    }
 
     @GetMapping
     public ResponseEntity<List<ProductResponseDTO>> getAll() {
@@ -27,12 +31,15 @@ public class ProductController {
     }
 
     @PostMapping
-    public ResponseEntity<ProductResponseDTO> create(@RequestBody ProductRequestDTO dto) {
+    public ResponseEntity<ProductResponseDTO> create(@Valid @RequestBody ProductRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductResponseDTO> update(@PathVariable Long id, @RequestBody ProductRequestDTO dto) {
+    public ResponseEntity<ProductResponseDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody ProductRequestDTO dto
+    ) {
         return ResponseEntity.ok(productService.update(id, dto));
     }
 

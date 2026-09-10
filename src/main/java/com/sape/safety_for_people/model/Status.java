@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,7 +21,8 @@ public class Status {
 
     private String name;
 
-    @Column(name = "created_on")
+    @CreationTimestamp
+    @Column(name = "created_on", updatable = false)
     private LocalDateTime createdOn;
 
     private Boolean active;

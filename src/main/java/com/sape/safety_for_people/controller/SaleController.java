@@ -3,16 +3,10 @@ package com.sape.safety_for_people.controller;
 import com.sape.safety_for_people.dto.SaleRequestDTO;
 import com.sape.safety_for_people.dto.SaleResponseDTO;
 import com.sape.safety_for_people.service.SaleService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,29 +21,32 @@ public class SaleController {
     }
 
     @GetMapping
-    public List<SaleResponseDTO> findAll() {
-        return saleService.findAll();
+    public ResponseEntity<List<SaleResponseDTO>> findAll() {
+        return ResponseEntity.ok(saleService.findAll());
     }
 
     @GetMapping("/{id}")
-    public SaleResponseDTO findById(@PathVariable Long id) {
-        return saleService.findById(id);
+    public ResponseEntity<SaleResponseDTO> findById(@PathVariable Long id) {
+        return ResponseEntity.ok(saleService.findById(id));
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public SaleResponseDTO create(@RequestBody SaleRequestDTO request) {
-        return saleService.create(request);
+    public ResponseEntity<SaleResponseDTO> create(@Valid @RequestBody SaleRequestDTO request) {
+        SaleResponseDTO created = saleService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
-    public SaleResponseDTO update(@PathVariable Long id, @RequestBody SaleRequestDTO request) {
-        return saleService.update(id, request);
+    public ResponseEntity<SaleResponseDTO> update(
+            @PathVariable Long id,
+            @Valid @RequestBody SaleRequestDTO request
+    ) {
+        return ResponseEntity.ok(saleService.update(id, request));
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
         saleService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }

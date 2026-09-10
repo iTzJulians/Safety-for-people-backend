@@ -7,7 +7,6 @@ import com.sape.safety_for_people.repository.StatusRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,7 +15,6 @@ public class StatusService {
 
     private final StatusRepository statusRepository;
 
-    // Inyección por constructor (estilo Julian) en lugar de @Autowired
     public StatusService(StatusRepository statusRepository) {
         this.statusRepository = statusRepository;
     }
@@ -24,6 +22,14 @@ public class StatusService {
     @Transactional(readOnly = true)
     public List<StatusResponseDTO> getAllStatuses() {
         return statusRepository.findAll()
+                .stream()
+                .map(this::mapToResponseDTO)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<StatusResponseDTO> getActiveOnly() {
+        return statusRepository.findByActiveTrue()
                 .stream()
                 .map(this::mapToResponseDTO)
                 .toList();
@@ -40,7 +46,6 @@ public class StatusService {
         Status status = new Status();
         status.setName(datos.getName());
         status.setActive(datos.getActive() != null ? datos.getActive() : true);
-        status.setCreatedOn(LocalDateTime.now());
 
         Status savedStatus = statusRepository.save(status);
         return mapToResponseDTO(savedStatus);
@@ -60,14 +65,13 @@ public class StatusService {
 
     @Transactional
     public boolean deleteStatus(Long id) {
-        if (!statusRepository.existsById(id)) {
-            return false;
-        }
-        statusRepository.deleteById(id);
-        return true;
+        return statusRepository.findById(id).map(status -> {
+            status.setActive(false);
+            statusRepository.save(status);
+            return true;
+        }).orElse(false);
     }
 
-    // Mapper integrado como método privado
     private StatusResponseDTO mapToResponseDTO(Status status) {
         return new StatusResponseDTO(
                 status.getId(),

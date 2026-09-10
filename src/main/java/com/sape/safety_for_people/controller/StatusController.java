@@ -29,7 +29,7 @@ public class StatusController {
     public ResponseEntity<StatusResponseDTO> getStatusById(@PathVariable Long id) {
         return statusService.getStatusById(id)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PostMapping
@@ -39,18 +39,19 @@ public class StatusController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StatusResponseDTO> updateStatus(@PathVariable Long id, @Valid @RequestBody StatusRequestDTO requestDTO) {
+    public ResponseEntity<StatusResponseDTO> updateStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody StatusRequestDTO requestDTO
+    ) {
         return statusService.updateStatus(id, requestDTO)
                 .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStatus(@PathVariable Long id) {
-        boolean deleted = statusService.deleteStatus(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        return statusService.deleteStatus(id)
+                ? ResponseEntity.noContent().build()
+                : ResponseEntity.notFound().build();
     }
 }

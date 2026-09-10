@@ -10,7 +10,7 @@ public record SaleResponseDTO(
         Integer quantity,
         BigDecimal totalAmount,
         Boolean active,
-        Integer status,
+        Long statusId,
         List<SaleDetailResponseDTO> details
 ) {
 }

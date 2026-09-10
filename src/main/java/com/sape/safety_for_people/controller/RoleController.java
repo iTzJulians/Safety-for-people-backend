@@ -3,6 +3,7 @@ package com.sape.safety_for_people.controller;
 import com.sape.safety_for_people.dto.RoleRequestDTO;
 import com.sape.safety_for_people.dto.RoleResponseDTO;
 import com.sape.safety_for_people.service.RoleService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +31,12 @@ public class RoleController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RoleResponseDTO> getRoleById(@PathVariable Integer id) {
+    public ResponseEntity<RoleResponseDTO> getRoleById(@PathVariable Long id) {
         return ResponseEntity.ok(roleService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<RoleResponseDTO> createRole(@RequestBody RoleRequestDTO requestDTO) {
+    public ResponseEntity<RoleResponseDTO> createRole(@Valid @RequestBody RoleRequestDTO requestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(roleService.create(requestDTO));
     }
 }

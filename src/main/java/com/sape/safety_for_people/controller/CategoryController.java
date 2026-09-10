@@ -3,6 +3,7 @@ package com.sape.safety_for_people.controller;
 import com.sape.safety_for_people.dto.CategoryRequestDTO;
 import com.sape.safety_for_people.dto.CategoryResponseDTO;
 import com.sape.safety_for_people.service.CategoryService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,12 +31,12 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDTO> getCategoryById(@PathVariable Integer id) {
+    public ResponseEntity<CategoryResponseDTO> getCategoryById(@PathVariable Long id) {
         return ResponseEntity.ok(categoryService.findById(id));
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDTO> createCategory(@RequestBody CategoryRequestDTO requestDTO) {
+    public ResponseEntity<CategoryResponseDTO> createCategory(@Valid @RequestBody CategoryRequestDTO requestDTO) {
         return ResponseEntity.status(HttpStatus.CREATED).body(categoryService.create(requestDTO));
     }
 }

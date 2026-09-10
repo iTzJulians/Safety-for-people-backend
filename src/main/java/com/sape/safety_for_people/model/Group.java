@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "groups")
 @Data
@@ -20,4 +22,19 @@ public class Group {
     private String name;
 
     private String description;
+
+    private Boolean active;
+
+    @Column(name = "created_on", updatable = false)
+    private LocalDateTime createdOn;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdOn == null) {
+            this.createdOn = LocalDateTime.now();
+        }
+        if (this.active == null) {
+            this.active = true;
+        }
+    }
 }

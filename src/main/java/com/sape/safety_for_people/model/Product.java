@@ -36,8 +36,29 @@ public class Product {
 
     private Boolean active;
 
-    @Column(name = "created_on")
+    @Column(name = "created_on", updatable = false)
     private LocalDateTime createdOn;
 
-    private String characteristics; // en el ERD es tipo "json"
+    private String characteristics; // Representa el JSON en la BD
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "group_id")
+    private Group group;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.createdOn == null) {
+            this.createdOn = LocalDateTime.now();
+        }
+        if (this.active == null) {
+            this.active = true;
+        }
+        if (this.favorite == null) {
+            this.favorite = false;
+        }
+    }
 }

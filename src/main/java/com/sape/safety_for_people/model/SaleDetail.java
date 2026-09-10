@@ -27,7 +27,7 @@ public class SaleDetail {
 
     @ManyToOne
     @JoinColumn(name = "sale_id", nullable = false)
-    private Sales sale;
+    private Sale sale;
 
     @ManyToOne
     @JoinColumn(name = "product_id", nullable = false)
@@ -53,11 +53,11 @@ public class SaleDetail {
         this.quantity = quantity;
     }
 
-    public Sales getSale() {
+    public Sale getSale() {
         return sale;
     }
 
-    public void setSale(Sales sale) {
+    public void setSale(Sale sale) {
         this.sale = sale;
     }
 
