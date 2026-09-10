@@ -7,9 +7,11 @@ import com.sape.safety_for_people.dto.SaleResponseDTO;
 import com.sape.safety_for_people.model.Product;
 import com.sape.safety_for_people.model.SaleDetail;
 import com.sape.safety_for_people.model.Sales;
+import com.sape.safety_for_people.model.Status;
 import com.sape.safety_for_people.repository.ProductRepository;
 import com.sape.safety_for_people.repository.SaleDetailRepository;
 import com.sape.safety_for_people.repository.SaleRepository;
+import com.sape.safety_for_people.repository.StatusRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,13 +24,16 @@ public class SaleService {
     private final SaleRepository saleRepository;
     private final SaleDetailRepository saleDetailRepository;
     private final ProductRepository productRepository;
+    private final StatusRepository statusRepository;
 
     public SaleService(SaleRepository saleRepository,
                        SaleDetailRepository saleDetailRepository,
-                       ProductRepository productRepository) {
+                       ProductRepository productRepository,
+                       StatusRepository statusRepository) {
         this.saleRepository = saleRepository;
         this.saleDetailRepository = saleDetailRepository;
         this.productRepository = productRepository;
+        this.statusRepository = statusRepository;
     }
 
     public List<SaleResponseDTO> findAll() {
@@ -85,7 +90,9 @@ public class SaleService {
         sale.setQuantity(totalQuantity);
         sale.setTotalAmount(totalAmount);
         sale.setActive(request.active());
-        sale.setStatus(request.status());
+        Status status = statusRepository.findById(request.status().longValue())
+                .orElseThrow(() -> new IllegalArgumentException("Status not found: " + request.status()));
+        sale.setStatus(status);
     }
 
     private SaleResponseDTO toResponse(Sales sale) {
@@ -99,8 +106,13 @@ public class SaleService {
                 ))
                 .toList();
         return new SaleResponseDTO(
-                sale.getId(), sale.getCreatedOn(), sale.getQuantity(), sale.getTotalAmount(),
-                sale.getActive(), sale.getStatus(), details
+                sale.getId(),
+                sale.getCreatedOn(),
+                sale.getQuantity(),
+                sale.getTotalAmount(),
+                sale.getActive(),
+                sale.getStatus() != null ? sale.getStatus().getId().intValue() : null,
+                details
         );
     }
 }
