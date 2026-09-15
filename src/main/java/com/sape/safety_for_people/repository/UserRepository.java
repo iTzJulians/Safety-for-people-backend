@@ -2,6 +2,7 @@ package com.sape.safety_for_people.repository;
 
 import com.sape.safety_for_people.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -13,4 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByActiveTrue();
 
     Optional<User> findByEmail(String email);
+
+    @Query("SELECT u FROM User u LEFT JOIN FETCH u.role WHERE u.email = :email")
+    Optional<User> findByEmailWithRole(String email);
 }
