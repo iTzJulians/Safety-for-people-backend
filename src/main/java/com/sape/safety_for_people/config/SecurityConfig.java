@@ -4,6 +4,7 @@ import com.sape.safety_for_people.security.JwtFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,25 +28,19 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Endpoints públicos (Login, Registro y Swagger UI)
-                        .requestMatchers(
-                                "/api/auth/**",
-                                "/api/dashboard/**",
-                                "/api/statuses",
-                                "/api/sales",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
-                        ).permitAll()
+                        // Lecturas públicas (catálogo, dashboard, API docs, gestión admin)
+                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
 
-                        // Todo lo demás requiere token JWT
+                        // Operaciones públicas que no requieren login
+                        .requestMatchers(HttpMethod.POST, "/api/auth/**", "/api/sales", "/api/statuses").permitAll()
+
+                        // Preflight de CORS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Todo lo demás (PUT/PATCH/DELETE y el resto de POST) requiere token JWT
                         .anyRequest().authenticated()
                 )
-                // Desactiva la creación de sesiones HTTP (clave para JWT REST APIs)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
-                // Intercepta cada petición con el filtro JWT antes del de autenticación por defecto
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

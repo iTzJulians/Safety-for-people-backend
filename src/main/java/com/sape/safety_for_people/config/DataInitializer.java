@@ -4,9 +4,9 @@ import com.sape.safety_for_people.model.Role;
 import com.sape.safety_for_people.model.Status;
 import com.sape.safety_for_people.model.User;
 import com.sape.safety_for_people.repository.*;
-import com.sape.safety_for_people.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
+@ConditionalOnProperty(name = "app.data-initializer.enabled", havingValue = "true", matchIfMissing = false)
 public class DataInitializer implements CommandLineRunner {
 
     @Autowired
@@ -26,9 +27,6 @@ public class DataInitializer implements CommandLineRunner {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -111,14 +109,26 @@ public class DataInitializer implements CommandLineRunner {
                 return;
             }
 
+            User admin = userRepository.findByEmail("admin@safety.com").orElse(null);
+            if (admin == null) {
+                admin = new User();
+                admin.setName("Administrador");
+                admin.setEmail("admin@safety.com");
+                admin.setPassword(passwordEncoder.encode("Admin123!"));
+                admin.setPhoneNumber("3001234567");
+                admin.setActive(true);
+                userRepository.save(admin);
+                System.out.println("[DataInitializer] Admin creado para ventas.");
+            }
+
             List<com.sape.safety_for_people.model.Sale> sampleSales = Arrays.asList(
-                crearVenta(entregado, products.get(0), 2, LocalDateTime.now().minusDays(1)),
-                crearVenta(enviado, products.get(1), 1, LocalDateTime.now().minusDays(2)),
-                crearVenta(pendiente, products.get(2), 3, LocalDateTime.now().minusDays(3)),
-                crearVenta(pagado, products.get(0), 1, LocalDateTime.now().minusDays(4)),
-                crearVenta(entregado, products.get(3), 2, LocalDateTime.now().minusDays(5)),
-                crearVenta(enviado, products.get(4), 1, LocalDateTime.now().minusDays(6)),
-                crearVenta(pendiente, products.get(5), 2, LocalDateTime.now().minusDays(7))
+                crearVenta(entregado, products.get(0), 2, admin, LocalDateTime.now().minusDays(1)),
+                crearVenta(enviado, products.get(1), 1, admin, LocalDateTime.now().minusDays(2)),
+                crearVenta(pendiente, products.get(2), 3, admin, LocalDateTime.now().minusDays(3)),
+                crearVenta(pagado, products.get(0), 1, admin, LocalDateTime.now().minusDays(4)),
+                crearVenta(entregado, products.get(3), 2, admin, LocalDateTime.now().minusDays(5)),
+                crearVenta(enviado, products.get(4), 1, admin, LocalDateTime.now().minusDays(6)),
+                crearVenta(pendiente, products.get(5), 2, admin, LocalDateTime.now().minusDays(7))
             );
 
             saleRepository.saveAll(sampleSales);
@@ -140,13 +150,14 @@ public class DataInitializer implements CommandLineRunner {
         return roleRepository.save(r);
     }
 
-    private com.sape.safety_for_people.model.Sale crearVenta(Status status, com.sape.safety_for_people.model.Product product, int cantidad, LocalDateTime fecha) {
+    private com.sape.safety_for_people.model.Sale crearVenta(Status status, com.sape.safety_for_people.model.Product product, int cantidad, User user, LocalDateTime fecha) {
         com.sape.safety_for_people.model.Sale sale = new com.sape.safety_for_people.model.Sale();
         sale.setStatus(status);
         sale.setQuantity(cantidad);
         sale.setTotalAmount(product.getPrice().multiply(BigDecimal.valueOf(cantidad)));
         sale.setActive(true);
         sale.setCreatedOn(fecha);
+        sale.setUser(user);
 
         var detail = new com.sape.safety_for_people.model.SaleDetail();
         detail.setPrice(product.getPrice());

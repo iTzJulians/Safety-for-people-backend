@@ -2,6 +2,8 @@ package com.sape.safety_for_people.service;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -13,7 +15,7 @@ public class ImageServiceImpl implements ImageService {
 
     private final Cloudinary cloudinary;
 
-    public ImageServiceImpl(Cloudinary cloudinary) {
+    public ImageServiceImpl(@Lazy Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
 
