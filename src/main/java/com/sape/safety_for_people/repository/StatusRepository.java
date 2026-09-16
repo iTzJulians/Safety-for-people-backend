@@ -5,10 +5,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface StatusRepository extends JpaRepository<Status, Long> {
 
-    // Genera la consulta SELECT * FROM status WHERE active = true
     List<Status> findByActiveTrue();
+
+    Optional<Status> findByName(String name);
 }

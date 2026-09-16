@@ -30,6 +30,9 @@ public class SecurityConfig {
                         // Endpoints públicos (Login, Registro y Swagger UI)
                         .requestMatchers(
                                 "/api/auth/**",
+                                "/api/dashboard/**",
+                                "/api/statuses",
+                                "/api/sales",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
