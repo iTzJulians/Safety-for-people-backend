@@ -43,6 +43,7 @@ public class AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado."));
+
         String token = jwtUtil.generateToken(userDetails, user.getId());
         return AuthResponse.builder().token(token).build();
     }
@@ -52,8 +53,11 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Ya existe un usuario registrado con ese correo.");
         }
 
-        Role role = roleRepository.findById(request.getRoleId())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol no válido: " + request.getRoleId()));
+        // Si la petición no envía roleId o se busca asegurar rol estándar, asignamos el ID 2L (Usuario)
+        Long roleIdToAssign = (request.getRoleId() != null) ? request.getRoleId() : 2L;
+
+        Role role = roleRepository.findById(roleIdToAssign)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Rol no válido: " + roleIdToAssign));
 
         User newUser = new User();
         newUser.setName(request.getNombre());
