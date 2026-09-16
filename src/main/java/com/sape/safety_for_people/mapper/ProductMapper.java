@@ -39,6 +39,8 @@ public class ProductMapper {
         dto.setActive(product.getActive());
         dto.setCreatedOn(product.getCreatedOn());
         dto.setCharacteristics(product.getCharacteristics());
+        dto.setCategoryId(product.getCategory() != null ? product.getCategory().getId() : null);
+        dto.setGroupId(product.getGroup() != null ? product.getGroup().getId() : null);
         return dto;
     }
 }

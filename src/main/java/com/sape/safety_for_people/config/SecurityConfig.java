@@ -28,16 +28,20 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Lecturas públicas (catálogo, dashboard, API docs, gestión admin)
-                        .requestMatchers(HttpMethod.GET, "/**").permitAll()
-
-                        // Operaciones públicas que no requieren login
-                        .requestMatchers(HttpMethod.POST, "/api/auth/**", "/api/sales", "/api/statuses").permitAll()
-
-                        // Preflight de CORS
+                        // El preflight CORS (OPTIONS) nunca lleva credenciales: si no se permite
+                        // explícitamente, Spring Security lo rechaza antes de que el navegador
+                        // pueda ver la respuesta real, y esta se ve como "bloqueado por CORS".
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                        // Todo lo demás (PUT/PATCH/DELETE y el resto de POST) requiere token JWT
+                        // Endpoints públicos (Login, Registro y Swagger UI)
+                        .requestMatchers(
+                                "/api/auth/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+                        // Todo lo demás (dashboard, productos, ventas, etc.) requiere token JWT
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
