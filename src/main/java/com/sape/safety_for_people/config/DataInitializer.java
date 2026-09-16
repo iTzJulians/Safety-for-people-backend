@@ -42,6 +42,7 @@ public class DataInitializer implements CommandLineRunner {
         seedStatuses();
         seedRoles();
         seedSampleUsers();
+        ensureDemoRoles();
         seedSampleSales();
     }
 
@@ -62,8 +63,8 @@ public class DataInitializer implements CommandLineRunner {
     private void seedRoles() {
         if (roleRepository.count() == 0) {
             List<Role> roles = Arrays.asList(
-                crearRole("ROLE_USER"),
-                crearRole("ROLE_ADMIN")
+                crearRole("ADMIN"),
+                crearRole("USER")
             );
             roleRepository.saveAll(roles);
             System.out.println("[DataInitializer] Roles iniciales creados.");
@@ -72,12 +73,16 @@ public class DataInitializer implements CommandLineRunner {
 
     private void seedSampleUsers() {
         if (userRepository.count() == 0) {
+            Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElse(null);
+            Role userRole = roleRepository.findByName("ROLE_USER").orElse(null);
+
             User admin = new User();
             admin.setName("Administrador");
             admin.setEmail("admin@safety.com");
             admin.setPassword(passwordEncoder.encode("Admin123!"));
             admin.setPhoneNumber("3001234567");
             admin.setActive(true);
+            admin.setRole(adminRole);
 
             User user = new User();
             user.setName("Usuario Demo");
@@ -85,10 +90,43 @@ public class DataInitializer implements CommandLineRunner {
             user.setPassword(passwordEncoder.encode("User123!"));
             user.setPhoneNumber("3007654321");
             user.setActive(true);
+            user.setRole(userRole);
 
             userRepository.saveAll(Arrays.asList(admin, user));
             System.out.println("[DataInitializer] Usuarios de prueba creados.");
         }
+    }
+
+    private void ensureDemoRoles() {
+        Role adminRole = buscarRol("ADMIN");
+        Role userRole = buscarRol("USER");
+
+        if (adminRole != null) {
+            userRepository.findByEmail("admin@safety.com").ifPresent(admin -> {
+                if (!adminRole.equals(admin.getRole())) {
+                    admin.setRole(adminRole);
+                    userRepository.save(admin);
+                    System.out.println("[DataInitializer] Rol ADMIN asignado a admin@safety.com.");
+                }
+            });
+        }
+
+        if (userRole != null) {
+            userRepository.findByEmail("user@safety.com").ifPresent(user -> {
+                if (!userRole.equals(user.getRole())) {
+                    user.setRole(userRole);
+                    userRepository.save(user);
+                    System.out.println("[DataInitializer] Rol USER asignado a user@safety.com.");
+                }
+            });
+        }
+    }
+
+    private Role buscarRol(String clave) {
+        return roleRepository.findByActiveTrue().stream()
+                .filter(r -> r.getName() != null && r.getName().toUpperCase().contains(clave))
+                .findFirst()
+                .orElse(null);
     }
 
     private void seedSampleSales() {
@@ -117,6 +155,7 @@ public class DataInitializer implements CommandLineRunner {
                 admin.setPassword(passwordEncoder.encode("Admin123!"));
                 admin.setPhoneNumber("3001234567");
                 admin.setActive(true);
+                admin.setRole(buscarRol("ADMIN"));
                 userRepository.save(admin);
                 System.out.println("[DataInitializer] Admin creado para ventas.");
             }
