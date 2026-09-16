@@ -41,6 +41,10 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
+                        // Catálogo de productos y categorías: cualquiera puede verlo sin sesión.
+                        // Crear/editar/eliminar sigue exigiendo token (solo admin usa esas acciones).
+                        .requestMatchers(HttpMethod.GET, "/api/productos/**", "/api/categories/**").permitAll()
+
                         // Todo lo demás requiere token JWT
                         .anyRequest().authenticated()
                 )
