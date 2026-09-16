@@ -29,19 +29,24 @@ public class Sale {
     @JoinColumn(name = "status_id", nullable = false)
     private Status status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SaleDetail> details = new ArrayList<>();
 
     public Sale() {
     }
 
-    public Sale(Long id, LocalDateTime createdOn, Integer quantity, BigDecimal totalAmount, Boolean active, Status status, List<SaleDetail> details) {
+    public Sale(Long id, LocalDateTime createdOn, Integer quantity, BigDecimal totalAmount, Boolean active, Status status, User user, List<SaleDetail> details) {
         this.id = id;
         this.createdOn = createdOn;
         this.quantity = quantity;
         this.totalAmount = totalAmount;
         this.active = active;
         this.status = status;
+        this.user = user;
         if (details != null) {
             this.details = details;
         }
@@ -103,6 +108,14 @@ public class Sale {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<SaleDetail> getDetails() {

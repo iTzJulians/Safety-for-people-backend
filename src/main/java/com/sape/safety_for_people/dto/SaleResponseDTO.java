@@ -11,6 +11,7 @@ public record SaleResponseDTO(
         BigDecimal totalAmount,
         Boolean active,
         Long statusId,
+        Long userId,
         List<SaleDetailResponseDTO> details
 ) {
 }

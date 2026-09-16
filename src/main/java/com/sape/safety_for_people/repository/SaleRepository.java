@@ -10,4 +10,6 @@ import java.util.List;
 public interface SaleRepository extends JpaRepository<Sale, Long> {
 
     List<Sale> findByActiveTrue();
+
+    List<Sale> findByUserIdOrderByCreatedOnDesc(Long userId);
 }

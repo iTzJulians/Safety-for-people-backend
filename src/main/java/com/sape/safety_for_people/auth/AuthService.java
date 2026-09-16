@@ -40,8 +40,10 @@ public class AuthService {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-        UserDetails user = userDetailsService.loadUserByUsername(request.getEmail());
-        String token = jwtUtil.generateToken(user);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Usuario no encontrado."));
+        String token = jwtUtil.generateToken(userDetails, user.getId());
         return AuthResponse.builder().token(token).build();
     }
 
@@ -61,8 +63,8 @@ public class AuthService {
         newUser.setRole(role);
         userRepository.save(newUser);
 
-        UserDetails user = userDetailsService.loadUserByUsername(newUser.getEmail());
-        String token = jwtUtil.generateToken(user);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(newUser.getEmail());
+        String token = jwtUtil.generateToken(userDetails, newUser.getId());
         return AuthResponse.builder().token(token).build();
     }
 }

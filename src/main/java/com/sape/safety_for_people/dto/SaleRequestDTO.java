@@ -21,6 +21,9 @@ public record SaleRequestDTO(
         @NotNull(message = "El ID del estado es obligatorio")
         Long statusId,
 
+        @NotNull(message = "El ID del usuario es obligatorio")
+        Long userId,
+
         @NotEmpty(message = "La venta debe incluir al menos un detalle de ítem")
         @Valid
         List<SaleItemRequestDTO> items

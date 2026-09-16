@@ -20,6 +20,7 @@ public class CorsConfig {
                                 "http://localhost:4200",
                                 "http://localhost:5500",
                                 "http://127.0.0.1:5500",
+                                "http://127.0.0.1:5501",
                                 "https://generation-classes.github.io"
                         ) // URLs comunes de frontend + deploy en GitHub Pages
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")

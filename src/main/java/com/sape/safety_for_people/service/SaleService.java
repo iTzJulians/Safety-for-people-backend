@@ -8,10 +8,12 @@ import com.sape.safety_for_people.model.Product;
 import com.sape.safety_for_people.model.Sale;
 import com.sape.safety_for_people.model.SaleDetail;
 import com.sape.safety_for_people.model.Status;
+import com.sape.safety_for_people.model.User;
 import com.sape.safety_for_people.repository.ProductRepository;
 import com.sape.safety_for_people.repository.SaleDetailRepository;
 import com.sape.safety_for_people.repository.SaleRepository;
 import com.sape.safety_for_people.repository.StatusRepository;
+import com.sape.safety_for_people.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,15 +28,18 @@ public class SaleService {
     private final SaleDetailRepository saleDetailRepository;
     private final ProductRepository productRepository;
     private final StatusRepository statusRepository;
+    private final UserRepository userRepository;
 
     public SaleService(SaleRepository saleRepository,
                        SaleDetailRepository saleDetailRepository,
                        ProductRepository productRepository,
-                       StatusRepository statusRepository) {
+                       StatusRepository statusRepository,
+                       UserRepository userRepository) {
         this.saleRepository = saleRepository;
         this.saleDetailRepository = saleDetailRepository;
         this.productRepository = productRepository;
         this.statusRepository = statusRepository;
+        this.userRepository = userRepository;
     }
 
     @Transactional(readOnly = true)
@@ -56,6 +61,13 @@ public class SaleService {
         return toResponse(findEntityById(id));
     }
 
+    @Transactional(readOnly = true)
+    public List<SaleResponseDTO> findByUserId(Long userId) {
+        return saleRepository.findByUserIdOrderByCreatedOnDesc(userId).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     @Transactional
     public SaleResponseDTO create(SaleRequestDTO request) {
         Sale sale = new Sale();
@@ -69,11 +81,21 @@ public class SaleService {
     @Transactional
     public SaleResponseDTO update(Long id, SaleRequestDTO request) {
         Sale sale = findEntityById(id);
+
+        // Antes de reaplicar los ítems, se restaura el stock de los ítems actuales
+        // para que actualizar una venta (p. ej. solo el estado) no descuente el stock dos veces.
         if (sale.getDetails() != null) {
+            for (SaleDetail detalleAnterior : sale.getDetails()) {
+                Product producto = detalleAnterior.getProduct();
+                if (producto != null && producto.getStock() != null) {
+                    producto.setStock(producto.getStock() + detalleAnterior.getQuantity());
+                }
+            }
             sale.getDetails().clear();
         } else {
             sale.setDetails(new ArrayList<>());
         }
+
         applyItems(request, sale);
         return toResponse(saleRepository.save(sale));
     }
@@ -129,6 +151,12 @@ public class SaleService {
         } else {
             sale.setStatus(null);
         }
+
+        if (request.userId() != null) {
+            User user = userRepository.findById(request.userId())
+                    .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado con ID: " + request.userId()));
+            sale.setUser(user);
+        }
     }
 
     private SaleResponseDTO toResponse(Sale sale) {
@@ -143,6 +171,7 @@ public class SaleService {
                 .toList();
 
         Long statusId = (sale.getStatus() != null) ? sale.getStatus().getId() : null;
+        Long userId = (sale.getUser() != null) ? sale.getUser().getId() : null;
 
         return new SaleResponseDTO(
                 sale.getId(),
@@ -151,6 +180,7 @@ public class SaleService {
                 sale.getTotalAmount(),
                 sale.getActive(),
                 statusId,
+                userId,
                 details
         );
     }
