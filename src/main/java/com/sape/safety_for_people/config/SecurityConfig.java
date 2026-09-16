@@ -41,10 +41,14 @@ public class SecurityConfig {
                                 "/swagger-ui.html"
                         ).permitAll()
 
-                        // Todo lo demás (dashboard, productos, ventas, etc.) requiere token JWT
+                        // Todo lo demás requiere token JWT
                         .anyRequest().authenticated()
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Desactiva la creación de sesiones HTTP (clave para JWT REST APIs)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                // Intercepta cada petición con el filtro JWT antes del de autenticación por defecto
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
