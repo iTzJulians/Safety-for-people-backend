@@ -9,11 +9,9 @@ import com.sape.safety_for_people.model.Product;
 import com.sape.safety_for_people.repository.CategoryRepository;
 import com.sape.safety_for_people.repository.GroupRepository;
 import com.sape.safety_for_people.repository.ProductRepository;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
+import com.sape.safety_for_people.repository.SaleDetailRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -23,13 +21,16 @@ public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final GroupRepository groupRepository;
+    private final SaleDetailRepository saleDetailRepository;
 
     public ProductServiceImpl(ProductRepository productRepository,
                               CategoryRepository categoryRepository,
-                              GroupRepository groupRepository) {
+                              GroupRepository groupRepository,
+                              SaleDetailRepository saleDetailRepository) {
         this.productRepository = productRepository;
         this.categoryRepository = categoryRepository;
         this.groupRepository = groupRepository;
+        this.saleDetailRepository = saleDetailRepository;
     }
 
     @Override
@@ -99,14 +100,15 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void delete(Long id) {
         Product product = findEntityById(id);
-        try {
+
+        // Un producto con ventas asociadas no se puede borrar en duro (llave foránea
+        // en sale_details); en ese caso se desactiva para que deje de mostrarse
+        // en catálogo y admin sin romper el historial de ventas.
+        if (saleDetailRepository.existsByProductId(id)) {
+            product.setActive(false);
+            productRepository.save(product);
+        } else {
             productRepository.delete(product);
-            productRepository.flush();
-        } catch (DataIntegrityViolationException e) {
-            throw new ResponseStatusException(
-                    HttpStatus.CONFLICT,
-                    "No se puede eliminar: el producto tiene ventas asociadas."
-            );
         }
     }
 
