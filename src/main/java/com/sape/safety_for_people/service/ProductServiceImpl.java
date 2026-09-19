@@ -9,8 +9,11 @@ import com.sape.safety_for_people.model.Product;
 import com.sape.safety_for_people.repository.CategoryRepository;
 import com.sape.safety_for_people.repository.GroupRepository;
 import com.sape.safety_for_people.repository.ProductRepository;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -96,8 +99,15 @@ public class ProductServiceImpl implements ProductService {
     @Transactional
     public void delete(Long id) {
         Product product = findEntityById(id);
-        product.setActive(false);
-        productRepository.save(product);
+        try {
+            productRepository.delete(product);
+            productRepository.flush();
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "No se puede eliminar: el producto tiene ventas asociadas."
+            );
+        }
     }
 
     private Product findEntityById(Long id) {
